@@ -1,97 +1,73 @@
-/* global CSSStyleSheet */
 (function () {
-  const CHARTJS_URL = "https://cdn.jsdelivr.net/npm/chart.js";
-
   class PerciComboChart extends HTMLElement {
     constructor() {
       super();
       this._shadow = this.attachShadow({ mode: "open" });
 
-      // Root container
       const container = document.createElement("div");
-      container.style.width = "100%";
-      container.style.height = "100%";
-      container.style.display = "flex";
-      container.style.alignItems = "stretch";
+      Object.assign(container.style, {
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "stretch"
+      });
 
-      // Canvas
       this._canvas = document.createElement("canvas");
-      this._canvas.style.width = "100%";
-      this._canvas.style.height = "100%";
+      Object.assign(this._canvas.style, { width: "100%", height: "100%" });
 
       container.appendChild(this._canvas);
       this._shadow.appendChild(container);
 
       this._chart = null;
-      this._chartReady = false;
 
-      // Hardcoded demo data
+      // Demo data
       this._labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-      this._barData = [120, 150, 90, 180, 160, 200]; // e.g., Revenue
-      this._lineData = [22, 25, 18, 27, 24, 30];     // e.g., Margin %
+      this._barData = [120, 150, 90, 180, 160, 200]; // Revenue
+      this._lineData = [22, 25, 18, 27, 24, 30];     // Margin %
 
-      // Properties with defaults (SAC will override if you bind)
+      // SAC property defaults (SAC will overwrite when bound)
       this._barLabel = this.getAttribute("barlabel") || "Revenue";
       this._lineLabel = this.getAttribute("linelabel") || "Margin %";
     }
 
-    // SAC property setters (optional)
     set barLabel(val) {
       this._barLabel = val;
-      this._renderChart();
+      this._render();
     }
     set lineLabel(val) {
       this._lineLabel = val;
-      this._renderChart();
+      this._render();
     }
 
     connectedCallback() {
-      this._ensureChartJs().then(() => {
-        this._chartReady = true;
-        this._renderChart();
-      });
+      if (!window.Chart) {
+        // Chart.js should be loaded via "resources" in the manifest before this runs
+        console.error("Chart.js not found. Check 'resources' in manifest.");
+        return;
+      }
+      this._render();
     }
 
     disconnectedCallback() {
-      this._destroyChart();
+      this._destroy();
     }
 
-    onCustomWidgetResize(width, height) {
-      // SAC calls this on resize
-      if (this._chart) {
-        this._chart.resize();
-      }
+    onCustomWidgetResize() {
+      if (this._chart && this._chart.resize) this._chart.resize();
     }
 
-    _destroyChart() {
+    _destroy() {
       if (this._chart && typeof this._chart.destroy === "function") {
         this._chart.destroy();
       }
       this._chart = null;
     }
 
-    async _ensureChartJs() {
-      if (window.Chart) return;
-      await new Promise((resolve, reject) => {
-        const existing = Array.from(document.getElementsByTagName("script"))
-          .find(s => s.src && s.src.indexOf("chart.js") !== -1);
-        if (existing && window.Chart) return resolve();
-
-        const script = document.createElement("script");
-        script.src = CHARTJS_URL;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Failed to load Chart.js"));
-        document.head.appendChild(script);
-      });
-    }
-
-    _renderChart() {
-      if (!this._chartReady || !this._canvas) return;
-
-      this._destroyChart();
+    _render() {
+      if (!this._canvas || !window.Chart) return;
       const ctx = this._canvas.getContext("2d");
+      this._destroy();
 
-      // Build chart
       this._chart = new window.Chart(ctx, {
         type: "bar",
         data: {
@@ -142,6 +118,5 @@
     }
   }
 
-  // Register element
   customElements.define("perci-combo-chart", PerciComboChart);
 })();
