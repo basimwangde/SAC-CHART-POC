@@ -15,9 +15,6 @@
       "ignoreIntegrity": true
     }
   ],
-  "resources": [
-    { "url": "chart.min.js" }
-  ],
   "properties": {
   },
   "methods": {},
