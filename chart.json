@@ -1,0 +1,22 @@
+{
+  "id": "com.percipere.combochart",
+  "name": "Combo Bar-Line Chart",
+  "version": "1.0.0",
+  "vendor": "Percipere",
+  "license": "MIT",
+  "description": "Simple combo (bar + line) chart with hardcoded data using Chart.js.",
+  "webcomponents": [
+    {
+      "kind": "main",
+      "src": "combo-chart.js",
+      "tag": "perci-combo-chart"
+    }
+  ],
+  "supportedFeatures": {
+    "heightResizing": true
+  },
+  "properties": {
+    "barLabel": { "type": "String", "default": "Revenue" },
+    "lineLabel": { "type": "String", "default": "Margin %" }
+  }
+}
