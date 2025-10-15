@@ -17,6 +17,14 @@
   ],
   "properties": {
   },
+  "dataBindings": {
+    "main": {
+      "feeds": [
+        { "id": "dimensions", "type": "dimension", "description": "Category (e.g., Month)" },
+        { "id": "measures",   "type": "mainStructureMember", "description": "Pick 1–2 measures (Bar = #1, Line = #2)" }
+      ]
+    }
+  },
   "methods": {},
   "events": {}
 }
