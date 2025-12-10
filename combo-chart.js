@@ -95,7 +95,10 @@
       // If only one measure is provided, we'll just show bars.
       const hasLine = rows.some(r => r["measures_1"] !== undefined);
 
+      console.log ("Basim Test");
       rows.forEach(r => {
+
+        //
         const d = r["dimensions_0"] ? r["dimensions_0"].label : "";
         if (d !== undefined) labels.push(String(d));
         const m0 = r["measures_0"] ? Number(r["measures_0"].raw || r["measures_0"].label || r["measures_0"]) : null;
