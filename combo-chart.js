@@ -35,11 +35,20 @@
       this._chart = null;
 
       // Fallback demo data (when nothing is bound)
+      // this._demo = {
+      //   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      //   bar:    [120, 150,  90, 180, 160, 200],
+      //   line:   [ 22,  25,  18,  27,  24,  30]
+      // };
+
       this._demo = {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        bar:    [120, 150,  90, 180, 160, 200],
-        line:   [ 22,  25,  18,  27,  24,  30]
+        labels: ["2025-Q1", "2025-Q2"],
+        barDA: [150, 220],
+        lineDA: [18, 25],
+        barLT: [140, 210],
+        lineLT: [15, 22]
       };
+
 
       this._barLabel  = this.getAttribute("barlabel")  || "Revenue";
       this._lineLabel = this.getAttribute("linelabel") || "Margin %";
