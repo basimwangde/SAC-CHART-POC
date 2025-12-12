@@ -260,8 +260,8 @@
 //   customElements.define("perci-combo-chart", PerciComboChart);
 // })();
 
-
 (function () {
+
   const CDN_CANDIDATES = [
     "https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js",
     "https://unpkg.com/chart.js@4/dist/chart.umd.min.js"
@@ -271,11 +271,16 @@
     return new Promise((resolve, reject) => {
       if (window.Chart) return resolve();
       const tryNext = (i) => {
-        if (i >= urls.length) return reject(new Error("All Chart.js URLs blocked or unreachable."));
+        if (i >= urls.length)
+          return reject(new Error("All Chart.js URLs blocked or unreachable."));
+
         const s = document.createElement("script");
         s.src = urls[i];
         s.onload = () => resolve();
-        s.onerror = () => { s.remove(); tryNext(i + 1); };
+        s.onerror = () => {
+          s.remove();
+          tryNext(i + 1);
+        };
         document.head.appendChild(s);
       };
       tryNext(0);
@@ -283,23 +288,43 @@
   }
 
   class PerciComboChart extends HTMLElement {
+
     constructor() {
       super();
+
       this._shadow = this.attachShadow({ mode: "open" });
 
       const container = document.createElement("div");
-      Object.assign(container.style, { width: "100%", height: "100%", display: "flex" });
+      Object.assign(container.style, {
+        width: "100%",
+        height: "100%",
+        display: "flex"
+      });
 
       this._canvas = document.createElement("canvas");
-      Object.assign(this._canvas.style, { width: "100%", height: "100%" });
+      Object.assign(this._canvas.style, {
+        width: "100%",
+        height: "100%"
+      });
+
       container.appendChild(this._canvas);
       this._shadow.appendChild(container);
 
       this._chart = null;
 
-      // Hardcoded demo data
-      this._demo = {
-        labels: [
+     
+      // HARDCODED DEMO DATA
+    
+      this._SourceData = {
+        Products: ["Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Oct ii", "Dec i"],
+        Date: ["15-Sep-25", "16-Sep-25", "17-Sep-25", "18-Sep-25", "19-Sep-25", "20-Sep-25", "21-Sep-25", "16-Sep-25", "20-Sep-25"],
+        ProductCategory: ["Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Long Term", "Long Term"],
+        ClearingPrice: [13.82, 12.16, 24.90, 7.49, 28.30, 68.11, 15.55, 27.98, 30.45],
+        SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98]
+      };
+
+      this._LabelData = {
+        UniqueDate: [
           "15-Sep-25",
           "16-Sep-25",
           "17-Sep-25",
@@ -307,25 +332,35 @@
           "19-Sep-25",
           "20-Sep-25",
           "21-Sep-25"
-        ],
-        daClearing:  [13.82, 12.16, 24.90,  7.49, 28.30, 68.11, 15.55],
-        octClearing: [ null, 27.98,  null,  null,  null,  null,  null],
-        decClearing: [ null,  null,  null,  null,  null, 30.45,  null],
-        daSpread:    [131,   127,   89,    68,   80,   96,   63],
-        octSpread:   [ null,  94,   null,  null,  null,  null, null],
-        decSpread:   [ null, null,  null,  null,  null, 98,  null]
+        ]
+      };
+
+      this._ProductListData = {
+        Product: ["Day Ahead", "Oct ii", "Dec i"],
+        BarColour: ["#1f77b4", "#ff7f0e", "#9467bd"],
+        LineColour: ["#ff7f0e", "#17becf", "#2ca02c"]
       };
     }
 
     connectedCallback() {
       loadScriptSequential(CDN_CANDIDATES)
         .then(() => this._render())
-        .catch(err => this._showError("Chart.js could not be loaded. Check CSP or host internally."));
+        .catch(err =>
+          this._showError("Chart.js could not be loaded. Check CSP or host internally.")
+        );
     }
 
-    disconnectedCallback() { this._destroy(); }
-    onCustomWidgetAfterUpdate() { this._render(); }
-    onCustomWidgetResize() { if (this._chart?.resize) this._chart.resize(); }
+    disconnectedCallback() {
+      this._destroy();
+    }
+
+    onCustomWidgetAfterUpdate() {
+      this._render();
+    }
+
+    onCustomWidgetResize() {
+      if (this._chart?.resize) this._chart.resize();
+    }
 
     _destroy() {
       if (this._chart?.destroy) this._chart.destroy();
@@ -333,76 +368,72 @@
     }
 
     _showError(msg) {
-      this._shadow.innerHTML = `<div style="font:14px sans-serif;padding:8px;color:#b00020">${msg}</div>`;
+      this._shadow.innerHTML =
+        `<div style="font:14px sans-serif;padding:8px;color:#b00020">${msg}</div>`;
+    }
+
+    _buildDatasets() {
+      const dates = this._LabelData.UniqueDate;
+      const src = this._SourceData;
+      const plist = this._ProductListData;
+
+      const datasets = [];
+
+      plist.Product.forEach((prodName, idx) => {
+
+        const barData = new Array(dates.length).fill(null);
+        const lineData = new Array(dates.length).fill(null);
+
+        // fill matched rows into correct (date) index
+        for (let i = 0; i < src.Date.length; i++) {
+
+          if (src.Products[i] !== prodName) continue;
+
+          const date = src.Date[i];
+          const pos = dates.indexOf(date);
+          if (pos === -1) continue;
+
+          barData[pos] = src.ClearingPrice[i];
+          lineData[pos] = src.SpreadCapture[i];
+        }
+
+        // Bar series for product
+        datasets.push({
+          type: "bar",
+          label: prodName + " Clearing Price",
+          data: barData,
+          backgroundColor: plist.BarColour[idx]
+        });
+
+        // line series for product
+        datasets.push({
+          type: "line",
+          label: prodName + " Spread Capture %",
+          data: lineData,
+          yAxisID: "y1",
+          borderColor: plist.LineColour[idx],
+          backgroundColor: "transparent",
+          tension: 0.3,
+          pointRadius: 3
+        });
+
+      });
+
+      return datasets;
     }
 
     _render() {
       if (!this._canvas || !window.Chart) return;
 
-      // For now ignore SAC binding and just use hardcoded demo
-      const d = this._demo;
+      const labels = this._LabelData.UniqueDate;
+      const datasets = this._buildDatasets();
 
       this._destroy();
       const ctx = this._canvas.getContext("2d");
 
       this._chart = new window.Chart(ctx, {
         type: "bar",
-        data: {
-          labels: d.labels,
-          datasets: [
-            // Bars – Clearing Prices
-            {
-              type: "bar",
-              label: "EL DA Clearing Price",
-              data: d.daClearing,
-              backgroundColor: "#1f77b4"
-            },
-            {
-              type: "bar",
-              label: "Oct ii Clearing Price",
-              data: d.octClearing,
-              backgroundColor: "#ff7f0e"
-            },
-            {
-              type: "bar",
-              label: "Dec i Clearing Price",
-              data: d.decClearing,
-              backgroundColor: "#9467bd"
-            },
-
-            // Lines – Spread Capture %
-            {
-              type: "line",
-              label: "EL DA Spread Capture %",
-              data: d.daSpread,
-              yAxisID: "y1",
-              borderColor: "#ff7f0e",
-              backgroundColor: "transparent",
-              tension: 0.3,
-              pointRadius: 3
-            },
-            {
-              type: "line",
-              label: "Oct ii Spread Capture %",
-              data: d.octSpread,
-              yAxisID: "y1",
-              borderColor: "#17becf",
-              backgroundColor: "transparent",
-              tension: 0.3,
-              pointRadius: 3
-            },
-            {
-              type: "line",
-              label: "Dec i Spread Capture %",
-              data: d.decSpread,
-              yAxisID: "y1",
-              borderColor: "#2ca02c",
-              backgroundColor: "transparent",
-              tension: 0.3,
-              pointRadius: 3
-            }
-          ]
-        },
+        data: { labels, datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -430,7 +461,9 @@
         }
       });
     }
+
   }
 
   customElements.define("perci-combo-chart", PerciComboChart);
+
 })();
