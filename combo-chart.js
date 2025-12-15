@@ -312,9 +312,7 @@
 
       this._chart = null;
 
-     
-      // HARDCODED DEMO DATA
-    
+      // HARDCODED DEMO DATA 
       this._SourceData = {
         Products: ["Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Oct ii", "Dec i"],
         Date: ["15-Sep-25", "16-Sep-25", "17-Sep-25", "18-Sep-25", "19-Sep-25", "20-Sep-25", "21-Sep-25", "16-Sep-25", "20-Sep-25"],
@@ -323,22 +321,48 @@
         SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98]
       };
 
-      this._LabelData = {
-        UniqueDate: [
-          "15-Sep-25",
-          "16-Sep-25",
-          "17-Sep-25",
-          "18-Sep-25",
-          "19-Sep-25",
-          "20-Sep-25",
-          "21-Sep-25"
-        ]
-      };
+      // build unique dates + product list + colors from source
+      this._buildMetaFromSource();
+    }
 
-      this._ProductListData = {
-        Product: ["Day Ahead", "Oct ii", "Dec i"],
-        BarColour: ["#1f77b4", "#ff7f0e", "#9467bd"],
-        LineColour: ["#ff7f0e", "#17becf", "#2ca02c"]
+    _buildMetaFromSource() {
+      const src = this._SourceData;
+
+      // unique dates (first-seen order)
+      const uniqueDates = Array.from(new Set(src.Date));
+
+      // unique products
+      const uniqueProducts = Array.from(new Set(src.Products));
+
+      this._LabelData = { UniqueDate: uniqueDates };
+      this._ProductListData = this._buildProductList(uniqueProducts);
+    }
+
+    _buildProductList(uniqueProducts) {
+      // 25 base colors
+      const baseColors = [
+        "#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd",
+        "#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf",
+        "#393b79","#637939","#8c6d31","#843c39","#7b4173",
+        "#3182bd","#e6550d","#31a354","#756bb1","#636363",
+        "#9c9ede","#e7cb94","#ff9896","#c5b0d5","#c7c7c7"
+      ];
+
+      // bar colors ascending
+      const barColor = uniqueProducts.map((_, i) =>
+        baseColors[i % baseColors.length]
+      );
+
+      // line colors descending
+      const lineColor = uniqueProducts.map((_, i) => {
+        const idx = baseColors.length - 1 - (i % baseColors.length);
+        return baseColors[idx];
+      });
+
+      return {
+        Product: uniqueProducts,
+        BarColour: barColor,
+        LineColour: lineColor
       };
     }
 
@@ -355,6 +379,8 @@
     }
 
     onCustomWidgetAfterUpdate() {
+      // in future, you can refresh _SourceData here from binding,
+      // then call this._buildMetaFromSource() and _render()
       this._render();
     }
 
@@ -384,9 +410,7 @@
         const barData = new Array(dates.length).fill(null);
         const lineData = new Array(dates.length).fill(null);
 
-        // fill matched rows into correct (date) index
         for (let i = 0; i < src.Date.length; i++) {
-
           if (src.Products[i] !== prodName) continue;
 
           const date = src.Date[i];
@@ -405,7 +429,7 @@
           backgroundColor: plist.BarColour[idx]
         });
 
-        // line series for product
+        // Line series for product
         datasets.push({
           type: "line",
           label: prodName + " Spread Capture %",
@@ -416,11 +440,11 @@
           tension: 0.3,
           pointRadius: 3
         });
-
       });
 
       return datasets;
     }
+
 
     _render() {
       if (!this._canvas || !window.Chart) return;
