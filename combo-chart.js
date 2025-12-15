@@ -33,17 +33,6 @@
       this._shadow.appendChild(container);
 
       this._chart = null;
-
-      // this._SourceData = {
-      //   Products: [],
-      //   Date: [],
-      //   ProductCategory: [],
-      //   ClearingPrice: [],
-      //   SpreadCapture: []
-      // };
-
-      // this._LabelData = { UniqueDate: [] };
-      // this._ProductListData = { Product: [], BarColour: [], LineColour: [] };
     }
 
     // DEMO FALLBACK 
@@ -88,7 +77,8 @@
           const m1 = r["measures_1"];
 
           const clearing = m0 ? Number(m0.raw ?? m0.label ?? m0) : null;
-          const spread   = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
+          // const spread   = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
+          const spread = m1 ? Number(m1.raw ?? m1.label ?? m1) * 100 : null;
 
           this._SourceData.Products.push(String(product));
           this._SourceData.Date.push(String(date));
@@ -203,7 +193,9 @@
           type: "bar",
           label: prodName + " Clearing Price",
           data: barData,
-          backgroundColor: plist.BarColour[idx]
+          backgroundColor: plist.BarColour[idx],
+          order: 1,
+          z: 0
         });
 
         datasets.push({
@@ -214,7 +206,9 @@
           borderColor: plist.LineColour[idx],
           backgroundColor: "transparent",
           tension: 0.3,
-          pointRadius: 3
+          pointRadius: 3,
+          order: 2,  
+          z: 10  
         });
       });
 
@@ -250,7 +244,7 @@
               beginAtZero: true,
               position: "right",
               grid: { drawOnChartArea: false },
-              ticks: { callback: v => v + "%" },
+              ticks: {callback: v => v.toFixed(2) + "%"},
               title: { display: true, text: "Spread Capture %" }
             },
             x: {
