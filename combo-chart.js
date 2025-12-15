@@ -76,9 +76,14 @@
           const m0 = r["measures_0"];
           const m1 = r["measures_1"];
 
-          const clearing = m0 ? Number(m0.raw ?? m0.label ?? m0) : null;
-          // const spread   = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
-          const spread = m1 ? Number(m1.raw ?? m1.label ?? m1) * 100 : null;
+          // const clearing = m0 ? Number(m0.raw ?? m0.label ?? m0) : null;
+          // // const spread   = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
+          // const spread = m1 ? Number(m1.raw ?? m1.label ?? m1) * 100 : null;
+
+          const spreadRaw = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
+          const spread = spreadRaw != null ? spreadRaw * 100 : null;
+          // this._SourceData.SpreadCapture.push(spread);
+
 
           this._SourceData.Products.push(String(product));
           this._SourceData.Date.push(String(date));
@@ -204,11 +209,13 @@
           data: lineData,
           yAxisID: "y1",
           borderColor: plist.LineColour[idx],
-          backgroundColor: "transparent",
-          tension: 0.3,
-          pointRadius: 3,
-          order: 2,  
-          z: 10  
+          backgroundColor: "white",
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          pointBorderWidth: 2,
+          order: 2,                   // after bars
+          z: 10 
         });
       });
 
@@ -218,8 +225,18 @@
     _render() {
       if (!this._canvas || !window.Chart) return;
 
-      const labels = this._LabelData.UniqueDate;
-      const datasets = this._buildDatasets();
+      // const labels = this._LabelData.UniqueDate;
+      // const datasets = this._buildDatasets();
+
+      const dates  = this._LabelData.UniqueDate;
+      const src    = this._SourceData;
+
+      // Build combined labels: Product + Date (first product found for that date)
+      const labels = dates.map(d => {
+        const idx = src.Date.indexOf(d);
+        const prod = idx >= 0 ? src.Products[idx] : "";
+        return prod + "\n" + d;   // two-line tick
+      });
 
       this._destroy();
       const ctx = this._canvas.getContext("2d");
@@ -244,11 +261,18 @@
               beginAtZero: true,
               position: "right",
               grid: { drawOnChartArea: false },
-              ticks: {callback: v => v.toFixed(2) + "%"},
+              ticks: { callback: v => v.toFixed(0) + "%" },
               title: { display: true, text: "Spread Capture %" }
             },
             x: {
-              title: { display: true, text: "Date" }
+              // title: { display: true, text: "Date" }
+              ticks: {
+                callback: function(value, index) {
+                  // split on \n into two lines
+                  const label = this.getLabelForValue(index);
+                  return label.split("\n");
+                }
+              }
             }
           }
         }
