@@ -51,7 +51,7 @@
           "Long Term", "Long Term"
         ],
         ClearingPrice: [13.82, 12.16, 24.90, 7.49, 28.30, 68.11, 15.55, 27.98, 30.45],
-        SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98]   // already in %
+        SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98] // already in %
       };
     }
 
@@ -75,11 +75,9 @@
           const m0 = r["measures_0"];
           const m1 = r["measures_1"];
 
-          // FIX 1: define clearing again
           const clearingRaw = m0 ? Number(m0.raw ?? m0.label ?? m0) : null;
           const clearing    = clearingRaw != null ? clearingRaw : null;
 
-          // SAC gives 0.94; convert to 94
           const spreadRaw = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
           const spread    = spreadRaw != null ? spreadRaw * 100 : null;
 
@@ -192,7 +190,7 @@
           lineData[pos] = src.SpreadCapture[i];
         }
 
-        // bar first
+        // bar first (behind)
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
@@ -202,7 +200,7 @@
           z: 0
         });
 
-        // line on top
+        // line on top (straight line, no curve)
         datasets.push({
           type: "line",
           label: prodName + " Spread Capture %",
@@ -210,12 +208,14 @@
           yAxisID: "y1",
           borderColor: plist.LineColour[idx],
           backgroundColor: "white",
-          tension: 0.4,
+          tension: 0,          // straight line
+          stepped: false,      // no step curve
           pointRadius: 4,
           pointHoverRadius: 5,
           pointBorderWidth: 2,
-          order: 2,
-          z: 10
+          borderWidth: 2,
+          order: 0,            // lower order -> drawn AFTER bars in v4
+          z: 10,               // higher z-index than bars
         });
       });
 
@@ -234,7 +234,7 @@
         return prod + "\n" + d;
       });
 
-      const datasets = this._buildDatasets();   // FIX 2: actually build datasets
+      const datasets = this._buildDatasets();
 
       this._destroy();
       const ctx = this._canvas.getContext("2d");
@@ -261,6 +261,19 @@
                   return dsLabel + ": " + (v != null ? v.toFixed(2) : "");
                 }
               }
+            },
+            // show values above bars and line points
+            datalabels: {
+              anchor: 'end',
+              align: 'end',
+              color: '#000',
+              formatter: (value, ctx) => {
+                if (value == null) return "";
+                if (ctx.dataset.label.includes("Spread Capture")) {
+                  return value.toFixed(0) + "%";
+                }
+                return value.toFixed(2);
+              }
             }
           },
           scales: {
@@ -284,7 +297,8 @@
               }
             }
           }
-        }
+        },
+        plugins: [] // if you load chartjs-plugin-datalabels, register it here
       });
     }
   }
