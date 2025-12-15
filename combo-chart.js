@@ -34,16 +34,16 @@
 
       this._chart = null;
 
-      this._SourceData = {
-        Products: [],
-        Date: [],
-        ProductCategory: [],
-        ClearingPrice: [],
-        SpreadCapture: []
-      };
+      // this._SourceData = {
+      //   Products: [],
+      //   Date: [],
+      //   ProductCategory: [],
+      //   ClearingPrice: [],
+      //   SpreadCapture: []
+      // };
 
-      this._LabelData = { UniqueDate: [] };
-      this._ProductListData = { Product: [], BarColour: [], LineColour: [] };
+      // this._LabelData = { UniqueDate: [] };
+      // this._ProductListData = { Product: [], BarColour: [], LineColour: [] };
     }
 
     // DEMO FALLBACK 
@@ -141,6 +141,17 @@
     connectedCallback() {
       loadScriptSequential(CDN_CANDIDATES)
         .then(() => {
+
+          this._SourceData = {
+            Products: [],
+            Date: [],
+            ProductCategory: [],
+            ClearingPrice: [],
+            SpreadCapture: []
+          };
+
+          this._LabelData = { UniqueDate: [] };
+          this._ProductListData = { Product: [], BarColour: [], LineColour: [] };
           this._updateSourceFromBinding(this.main);
           this._render();
         })
