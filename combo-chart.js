@@ -35,7 +35,7 @@
       this._chart = null;
     }
 
-    // DEMO FALLBACK 
+    // DEMO FALLBACK
     _loadDemoSourceData() {
       this._SourceData = {
         Products: [
@@ -51,7 +51,7 @@
           "Long Term", "Long Term"
         ],
         ClearingPrice: [13.82, 12.16, 24.90, 7.49, 28.30, 68.11, 15.55, 27.98, 30.45],
-        SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98]
+        SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98]   // already in %
       };
     }
 
@@ -68,7 +68,6 @@
         };
 
         rows.forEach(r => {
-          // Adjust these keys to your model mapping
           const date    = r["dimensions_0"]?.label ?? "";
           const product = r["dimensions_1"]?.label ?? "";
           const cat     = r["Product Category"] ?? r["dimensions_2"]?.label ?? "";
@@ -76,14 +75,13 @@
           const m0 = r["measures_0"];
           const m1 = r["measures_1"];
 
-          // const clearing = m0 ? Number(m0.raw ?? m0.label ?? m0) : null;
-          // // const spread   = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
-          // const spread = m1 ? Number(m1.raw ?? m1.label ?? m1) * 100 : null;
+          // FIX 1: define clearing again
+          const clearingRaw = m0 ? Number(m0.raw ?? m0.label ?? m0) : null;
+          const clearing    = clearingRaw != null ? clearingRaw : null;
 
+          // SAC gives 0.94; convert to 94
           const spreadRaw = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
-          const spread = spreadRaw != null ? spreadRaw * 100 : null;
-          // this._SourceData.SpreadCapture.push(spread);
-
+          const spread    = spreadRaw != null ? spreadRaw * 100 : null;
 
           this._SourceData.Products.push(String(product));
           this._SourceData.Date.push(String(date));
@@ -136,7 +134,6 @@
     connectedCallback() {
       loadScriptSequential(CDN_CANDIDATES)
         .then(() => {
-
           this._SourceData = {
             Products: [],
             Date: [],
@@ -147,6 +144,7 @@
 
           this._LabelData = { UniqueDate: [] };
           this._ProductListData = { Product: [], BarColour: [], LineColour: [] };
+
           this._updateSourceFromBinding(this.main);
           this._render();
         })
@@ -190,10 +188,11 @@
           const pos = dates.indexOf(date);
           if (pos === -1) continue;
 
-          barData[pos] = src.ClearingPrice[i];
+          barData[pos]  = src.ClearingPrice[i];
           lineData[pos] = src.SpreadCapture[i];
         }
 
+        // bar first
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
@@ -203,6 +202,7 @@
           z: 0
         });
 
+        // line on top
         datasets.push({
           type: "line",
           label: prodName + " Spread Capture %",
@@ -214,8 +214,8 @@
           pointRadius: 4,
           pointHoverRadius: 5,
           pointBorderWidth: 2,
-          order: 2,                   // after bars
-          z: 10 
+          order: 2,
+          z: 10
         });
       });
 
@@ -225,18 +225,16 @@
     _render() {
       if (!this._canvas || !window.Chart) return;
 
-      // const labels = this._LabelData.UniqueDate;
-      // const datasets = this._buildDatasets();
-
       const dates  = this._LabelData.UniqueDate;
       const src    = this._SourceData;
 
-      // Build combined labels: Product + Date (first product found for that date)
       const labels = dates.map(d => {
         const idx = src.Date.indexOf(d);
         const prod = idx >= 0 ? src.Products[idx] : "";
-        return prod + "\n" + d;   // two-line tick
+        return prod + "\n" + d;
       });
+
+      const datasets = this._buildDatasets();   // FIX 2: actually build datasets
 
       this._destroy();
       const ctx = this._canvas.getContext("2d");
@@ -250,7 +248,20 @@
           interaction: { mode: "index", intersect: false },
           plugins: {
             legend: { position: "top" },
-            tooltip: { mode: "index", intersect: false }
+            tooltip: {
+              mode: "index",
+              intersect: false,
+              callbacks: {
+                label: (ctx) => {
+                  const dsLabel = ctx.dataset.label || "";
+                  const v = ctx.parsed.y;
+                  if (dsLabel.includes("Spread Capture")) {
+                    return dsLabel + ": " + (v != null ? v.toFixed(0) + "%" : "");
+                  }
+                  return dsLabel + ": " + (v != null ? v.toFixed(2) : "");
+                }
+              }
+            }
           },
           scales: {
             y: {
@@ -265,10 +276,8 @@
               title: { display: true, text: "Spread Capture %" }
             },
             x: {
-              // title: { display: true, text: "Date" }
               ticks: {
                 callback: function(value, index) {
-                  // split on \n into two lines
                   const label = this.getLabelForValue(index);
                   return label.split("\n");
                 }
