@@ -4,11 +4,15 @@
     "https://unpkg.com/chart.js@4/dist/chart.umd.min.js"
   ];
 
+  const DATALABELS_CDNS = [
+    "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2",
+    "https://unpkg.com/chartjs-plugin-datalabels@2"
+  ];
+
   function loadScriptSequential(urls) {
     return new Promise((resolve, reject) => {
-      if (window.Chart) return resolve();
       const tryNext = (i) => {
-        if (i >= urls.length) return reject(new Error("All Chart.js URLs blocked or unreachable."));
+        if (i >= urls.length) return reject(new Error("All URLs blocked or unreachable."));
         const s = document.createElement("script");
         s.src = urls[i];
         s.onload = () => resolve();
@@ -35,7 +39,6 @@
       this._chart = null;
     }
 
-    // DEMO FALLBACK data
     _loadDemoSourceData() {
       this._SourceData = {
         Products: [
@@ -51,7 +54,7 @@
           "Long Term", "Long Term"
         ],
         ClearingPrice: [13.82, 12.16, 24.90, 7.49, 28.30, 68.11, 15.55, 27.98, 30.45],
-        SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98] // already in %
+        SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98]
       };
     }
 
@@ -130,7 +133,9 @@
     }
 
     connectedCallback() {
+      // load Chart.js then datalabels plugin
       loadScriptSequential(CDN_CANDIDATES)
+        .then(() => loadScriptSequential(DATALABELS_CDNS))
         .then(() => {
           this._SourceData = {
             Products: [],
@@ -147,7 +152,7 @@
           this._render();
         })
         .catch(err =>
-          this._showError("Chart.js could not be loaded. Check CSP or host internally.")
+          this._showError("Chart.js or datalabels plugin could not be loaded. Check CSP or host internally.")
         );
     }
 
@@ -190,17 +195,23 @@
           lineData[pos] = src.SpreadCapture[i];
         }
 
-        // bar first (behind)
+        // bar
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
           data: barData,
           backgroundColor: plist.BarColour[idx],
           order: 1,
-          z: 0
+          z: 0,
+          datalabels: {
+            align: "end",
+            anchor: "end",
+            color: "#000",
+            formatter: (v) => v == null ? "" : v.toFixed(2)
+          }
         });
 
-        // line on top (straight line, no curve)
+        // line
         datasets.push({
           type: "line",
           label: prodName + " Spread Capture %",
@@ -208,14 +219,20 @@
           yAxisID: "y1",
           borderColor: plist.LineColour[idx],
           backgroundColor: "white",
-          tension: 0,          // straight line
-          stepped: false,      // no step curve
+          tension: 0,
+          stepped: false,
           pointRadius: 4,
           pointHoverRadius: 5,
           pointBorderWidth: 2,
           borderWidth: 2,
-          order: 0,            // lower order -> drawn AFTER bars in v4
-          z: 10,               // higher z-index than bars
+          order: 0,
+          z: 10,
+          datalabels: {
+            align: "top",
+            anchor: "end",
+            color: "#000",
+            formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
+          }
         });
       });
 
@@ -223,7 +240,7 @@
     }
 
     _render() {
-      if (!this._canvas || !window.Chart) return;
+      if (!this._canvas || !window.Chart || !window.ChartDataLabels) return;
 
       const dates  = this._LabelData.UniqueDate;
       const src    = this._SourceData;
@@ -262,18 +279,9 @@
                 }
               }
             },
-            // show values above bars and line points
+            
             datalabels: {
-              anchor: 'end',
-              align: 'end',
-              color: '#000',
-              formatter: (value, ctx) => {
-                if (value == null) return "";
-                if (ctx.dataset.label.includes("Spread Capture")) {
-                  return value.toFixed(0) + "%";
-                }
-                return value.toFixed(2);
-              }
+              display: true
             }
           },
           scales: {
@@ -298,7 +306,7 @@
             }
           }
         },
-        plugins: [] // if you load chartjs-plugin-datalabels, register it here
+        plugins: [window.ChartDataLabels]
       });
     }
   }
