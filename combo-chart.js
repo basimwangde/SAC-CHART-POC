@@ -86,7 +86,7 @@
       this._ProductListData = this._buildProductList(uniqueProducts);
     }
 
-    // fixed color mapping according to business meaning
+    // fixed color mapping according to business meaning 
     _buildProductList(uniqueProducts) {
       const DAY_AHEAD_NAME = "Day Ahead";
       const LONG_TERM_NAME = "Long Term";
@@ -99,7 +99,7 @@
           barColor.push("#A1C7A8");   // Day Ahead bar (green)
           lineColor.push("#7F7F7F");  // Day Ahead line (gray)
         } else if (p === LONG_TERM_NAME) {
-          barColor.push("#F9CCCC");   // Long Term bar (pink)
+          barColor.push("#F9CCCC");   // Long Term bar (light spink)
           lineColor.push("#000000");  // Long Term line (black)
         } else {
           barColor.push("#A1C7A8");
