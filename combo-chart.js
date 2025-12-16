@@ -35,7 +35,7 @@
       this._chart = null;
     }
 
-    // DEMO FALLBACK
+    // DEMO FALLBACK data
     _loadDemoSourceData() {
       this._SourceData = {
         Products: [
