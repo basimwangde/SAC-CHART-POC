@@ -39,25 +39,6 @@
       this._chart = null;
     }
 
-    // _loadDemoSourceData() {
-    //   this._SourceData = {
-    //     Products: [
-    //       "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead",
-    //       "Oct ii", "Dec i"
-    //     ],
-    //     Date: [
-    //       "15-Sep-25", "16-Sep-25", "17-Sep-25", "18-Sep-25", "19-Sep-25", "20-Sep-25", "21-Sep-25",
-    //       "16-Sep-25", "20-Sep-25"
-    //     ],
-    //     ProductCategory: [
-    //       "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead",
-    //       "Long Term", "Long Term"
-    //     ],
-    //     ClearingPrice: [13.82, 12.16, 24.90, 7.49, 28.30, 68.11, 15.55, 27.98, 30.45],
-    //     SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98]
-    //   };
-    // }
-
     _updateSourceFromBinding(binding) {
       if (binding && Array.isArray(binding.data) && binding.data.length > 0) {
         const rows = binding.data;
@@ -90,8 +71,6 @@
           this._SourceData.ClearingPrice.push(clearing);
           this._SourceData.SpreadCapture.push(spread);
         });
-      // } else {
-      //   this._loadDemoSourceData();
       }
 
       this._buildMetaFromSource();
@@ -109,7 +88,7 @@
 
     // fixed color mapping according to business meaning
     _buildProductList(uniqueProducts) {
-      const DAY_AHEAD_NAME = "Day Ahead";   // you can adjust if exact label differs
+      const DAY_AHEAD_NAME = "Day Ahead";
       const LONG_TERM_NAME = "Long Term";
 
       const barColor = [];
@@ -117,13 +96,12 @@
 
       uniqueProducts.forEach(p => {
         if (p === DAY_AHEAD_NAME) {
-          barColor.push("#A1C7A8");  // Day Ahead bar
-          lineColor.push("#7F7F7F"); // Day Ahead line
+          barColor.push("#A1C7A8");   // Day Ahead bar (green)
+          lineColor.push("#7F7F7F");  // Day Ahead line (gray)
         } else if (p === LONG_TERM_NAME) {
-          barColor.push("#F9CCCC");  // Long Term bar
-          lineColor.push("#000000"); // Long Term line
+          barColor.push("#F9CCCC");   // Long Term bar (pink)
+          lineColor.push("#000000");  // Long Term line (black)
         } else {
-          // fallback, but still use same palette style
           barColor.push("#A1C7A8");
           lineColor.push("#7F7F7F");
         }
@@ -204,13 +182,21 @@
           label: prodName + " Clearing Price",
           data: barData,
           backgroundColor: plist.BarColour[idx],
+          borderColor: plist.BarColour[idx],
+          borderWidth: 1,
           order: 1,
           z: 0,
           datalabels: {
+            // like second chart: inside bar, white, bold
             align: "end",
             anchor: "end",
-            color: "#000",
-            formatter: (v) => v == null ? "" : v.toFixed(2) + " €"
+            color: "#ffffff",
+            font: {
+              weight: "bold",
+              size: 11
+            },
+            offset: -4,
+            formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
           }
         });
 
@@ -221,7 +207,7 @@
           data: lineData,
           yAxisID: "y1",
           borderColor: plist.LineColour[idx],
-          backgroundColor: "white",
+          backgroundColor: "#ffffff",
           tension: 0,
           stepped: false,
           pointRadius: 4,
@@ -233,7 +219,11 @@
           datalabels: {
             align: "top",
             anchor: "end",
-            color: "#000",
+            color: "#000000",
+            font: {
+              weight: "bold",
+              size: 11
+            },
             formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
           }
         });
@@ -246,8 +236,6 @@
       if (!this._canvas || !window.Chart || !window.ChartDataLabels) return;
 
       const dates  = this._LabelData.UniqueDate;
-
-      // X axis: only dates as label
       const labels = dates.map(d => d);
 
       const datasets = this._buildDatasets();
@@ -263,24 +251,25 @@
           maintainAspectRatio: false,
           interaction: { mode: "index", intersect: false },
 
-          // global animation OFF
           animation: false,
 
           plugins: {
-            // Bold header at top center
             title: {
               display: true,
               text: "SPREAD CAPTURE VS CLEARING PRICE",
               font: { size: 16, weight: "bold" },
-              align: "center"
+              align: "center",
+              color: "#000000"
             },
 
-            // legend bottom middle
             legend: {
               position: "bottom",
               align: "center",
               labels: {
-                usePointStyle: true
+                usePointStyle: true,          // legend looks like line/marker instead of big box
+                pointStyle: "line",           // for line datasets (will be overridden by dataset pointStyle)
+                boxWidth: 30,
+                boxHeight: 8
               }
             },
 
@@ -294,12 +283,11 @@
                   if (dsLabel.includes("Spread Capture")) {
                     return dsLabel + ": " + (v != null ? v.toFixed(0) + "%" : "");
                   }
-                  return dsLabel + ": " + (v != null ? v.toFixed(2) + " €" : "");
+                  return dsLabel + ": " + (v != null ? "€ " + v.toFixed(2) : "");
                 }
               }
             },
 
-            // enable plugin; per-dataset configs already done
             datalabels: {
               display: true
             }
@@ -310,9 +298,9 @@
               beginAtZero: true,
               title: { display: true, text: "Clearing Price (EUR)" },
               ticks: {
-                callback: v => "€ " + Number(v).toFixed(2)
+                // remove decimals on Y axis
+                callback: v => "€ " + Number(v).toFixed(0)
               },
-              // horizontal lines only
               grid: {
                 drawBorder: true,
                 drawOnChartArea: true,
@@ -326,12 +314,13 @@
               beginAtZero: true,
               position: "right",
               grid: { drawOnChartArea: false },
-              ticks: { callback: v => v.toFixed(0) + "%" },
+              ticks: {
+                callback: v => v.toFixed(0) + "%"
+              },
               title: { display: true, text: "Spread Capture %" }
             },
             x: {
               grid: {
-                // remove vertical grid lines
                 display: false,
                 drawBorder: true
               },
