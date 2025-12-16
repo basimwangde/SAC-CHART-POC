@@ -4,11 +4,15 @@
     "https://unpkg.com/chart.js@4/dist/chart.umd.min.js"
   ];
 
+  const DATALABELS_CDNS = [
+    "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2",
+    "https://unpkg.com/chartjs-plugin-datalabels@2"
+  ];
+
   function loadScriptSequential(urls) {
     return new Promise((resolve, reject) => {
-      if (window.Chart) return resolve();
       const tryNext = (i) => {
-        if (i >= urls.length) return reject(new Error("All Chart.js URLs blocked or unreachable."));
+        if (i >= urls.length) return reject(new Error("All URLs blocked or unreachable."));
         const s = document.createElement("script");
         s.src = urls[i];
         s.onload = () => resolve();
@@ -35,25 +39,24 @@
       this._chart = null;
     }
 
-    // DEMO FALLBACK data
-    _loadDemoSourceData() {
-      this._SourceData = {
-        Products: [
-          "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead",
-          "Oct ii", "Dec i"
-        ],
-        Date: [
-          "15-Sep-25", "16-Sep-25", "17-Sep-25", "18-Sep-25", "19-Sep-25", "20-Sep-25", "21-Sep-25",
-          "16-Sep-25", "20-Sep-25"
-        ],
-        ProductCategory: [
-          "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead",
-          "Long Term", "Long Term"
-        ],
-        ClearingPrice: [13.82, 12.16, 24.90, 7.49, 28.30, 68.11, 15.55, 27.98, 30.45],
-        SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98] // already in %
-      };
-    }
+    // _loadDemoSourceData() {
+    //   this._SourceData = {
+    //     Products: [
+    //       "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead",
+    //       "Oct ii", "Dec i"
+    //     ],
+    //     Date: [
+    //       "15-Sep-25", "16-Sep-25", "17-Sep-25", "18-Sep-25", "19-Sep-25", "20-Sep-25", "21-Sep-25",
+    //       "16-Sep-25", "20-Sep-25"
+    //     ],
+    //     ProductCategory: [
+    //       "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead", "Day Ahead",
+    //       "Long Term", "Long Term"
+    //     ],
+    //     ClearingPrice: [13.82, 12.16, 24.90, 7.49, 28.30, 68.11, 15.55, 27.98, 30.45],
+    //     SpreadCapture: [131, 127, 89, 68, 80, 96, 63, 94, 98]
+    //   };
+    // }
 
     _updateSourceFromBinding(binding) {
       if (binding && Array.isArray(binding.data) && binding.data.length > 0) {
@@ -78,8 +81,8 @@
           const clearingRaw = m0 ? Number(m0.raw ?? m0.label ?? m0) : null;
           const clearing    = clearingRaw != null ? clearingRaw : null;
 
-          const spreadRaw = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
-          const spread    = spreadRaw != null ? spreadRaw * 100 : null;
+          const spreadRaw   = m1 ? Number(m1.raw ?? m1.label ?? m1) : null;
+          const spread      = spreadRaw != null ? spreadRaw * 100 : null;
 
           this._SourceData.Products.push(String(product));
           this._SourceData.Date.push(String(date));
@@ -87,8 +90,8 @@
           this._SourceData.ClearingPrice.push(clearing);
           this._SourceData.SpreadCapture.push(spread);
         });
-      } else {
-        this._loadDemoSourceData();
+      // } else {
+      //   this._loadDemoSourceData();
       }
 
       this._buildMetaFromSource();
@@ -104,22 +107,26 @@
       this._ProductListData = this._buildProductList(uniqueProducts);
     }
 
+    // fixed color mapping according to business meaning
     _buildProductList(uniqueProducts) {
-      const baseColors = [
-        "#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd",
-        "#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf",
-        "#393b79","#637939","#8c6d31","#843c39","#7b4173",
-        "#3182bd","#e6550d","#31a354","#756bb1","#636363",
-        "#9c9ede","#e7cb94","#ff9896","#c5b0d5","#c7c7c7"
-      ];
+      const DAY_AHEAD_NAME = "Day Ahead";   // you can adjust if exact label differs
+      const LONG_TERM_NAME = "Long Term";
 
-      const barColor = uniqueProducts.map((_, i) =>
-        baseColors[i % baseColors.length]
-      );
+      const barColor = [];
+      const lineColor = [];
 
-      const lineColor = uniqueProducts.map((_, i) => {
-        const idx = baseColors.length - 1 - (i % baseColors.length);
-        return baseColors[idx];
+      uniqueProducts.forEach(p => {
+        if (p === DAY_AHEAD_NAME) {
+          barColor.push("#A1C7A8");  // Day Ahead bar
+          lineColor.push("#7F7F7F"); // Day Ahead line
+        } else if (p === LONG_TERM_NAME) {
+          barColor.push("#F9CCCC");  // Long Term bar
+          lineColor.push("#000000"); // Long Term line
+        } else {
+          // fallback, but still use same palette style
+          barColor.push("#A1C7A8");
+          lineColor.push("#7F7F7F");
+        }
       });
 
       return {
@@ -131,6 +138,7 @@
 
     connectedCallback() {
       loadScriptSequential(CDN_CANDIDATES)
+        .then(() => loadScriptSequential(DATALABELS_CDNS))
         .then(() => {
           this._SourceData = {
             Products: [],
@@ -147,7 +155,7 @@
           this._render();
         })
         .catch(err =>
-          this._showError("Chart.js could not be loaded. Check CSP or host internally.")
+          this._showError("Chart.js or datalabels plugin could not be loaded. Check CSP or host internally.")
         );
     }
 
@@ -190,17 +198,23 @@
           lineData[pos] = src.SpreadCapture[i];
         }
 
-        // bar first (behind)
+        // bar dataset
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
           data: barData,
           backgroundColor: plist.BarColour[idx],
           order: 1,
-          z: 0
+          z: 0,
+          datalabels: {
+            align: "end",
+            anchor: "end",
+            color: "#000",
+            formatter: (v) => v == null ? "" : v.toFixed(2) + " €"
+          }
         });
 
-        // line on top (straight line, no curve)
+        // line dataset
         datasets.push({
           type: "line",
           label: prodName + " Spread Capture %",
@@ -208,14 +222,20 @@
           yAxisID: "y1",
           borderColor: plist.LineColour[idx],
           backgroundColor: "white",
-          tension: 0,          // straight line
-          stepped: false,      // no step curve
+          tension: 0,
+          stepped: false,
           pointRadius: 4,
           pointHoverRadius: 5,
           pointBorderWidth: 2,
           borderWidth: 2,
-          order: 0,            // lower order -> drawn AFTER bars in v4
-          z: 10,               // higher z-index than bars
+          order: 0,
+          z: 10,
+          datalabels: {
+            align: "top",
+            anchor: "end",
+            color: "#000",
+            formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
+          }
         });
       });
 
@@ -223,16 +243,12 @@
     }
 
     _render() {
-      if (!this._canvas || !window.Chart) return;
+      if (!this._canvas || !window.Chart || !window.ChartDataLabels) return;
 
       const dates  = this._LabelData.UniqueDate;
-      const src    = this._SourceData;
 
-      const labels = dates.map(d => {
-        const idx = src.Date.indexOf(d);
-        const prod = idx >= 0 ? src.Products[idx] : "";
-        return prod + "\n" + d;
-      });
+      // X axis: only dates as label
+      const labels = dates.map(d => d);
 
       const datasets = this._buildDatasets();
 
@@ -246,8 +262,28 @@
           responsive: true,
           maintainAspectRatio: false,
           interaction: { mode: "index", intersect: false },
+
+          // global animation OFF
+          animation: false,
+
           plugins: {
-            legend: { position: "top" },
+            // Bold header at top center
+            title: {
+              display: true,
+              text: "SPREAD CAPTURE VS CLEARING PRICE",
+              font: { size: 16, weight: "bold" },
+              align: "center"
+            },
+
+            // legend bottom middle
+            legend: {
+              position: "bottom",
+              align: "center",
+              labels: {
+                usePointStyle: true
+              }
+            },
+
             tooltip: {
               mode: "index",
               intersect: false,
@@ -258,28 +294,33 @@
                   if (dsLabel.includes("Spread Capture")) {
                     return dsLabel + ": " + (v != null ? v.toFixed(0) + "%" : "");
                   }
-                  return dsLabel + ": " + (v != null ? v.toFixed(2) : "");
+                  return dsLabel + ": " + (v != null ? v.toFixed(2) + " €" : "");
                 }
               }
             },
-            // show values above bars and line points
+
+            // enable plugin; per-dataset configs already done
             datalabels: {
-              anchor: 'end',
-              align: 'end',
-              color: '#000',
-              formatter: (value, ctx) => {
-                if (value == null) return "";
-                if (ctx.dataset.label.includes("Spread Capture")) {
-                  return value.toFixed(0) + "%";
-                }
-                return value.toFixed(2);
-              }
+              display: true
             }
           },
+
           scales: {
             y: {
               beginAtZero: true,
-              title: { display: true, text: "Clearing Price" }
+              title: { display: true, text: "Clearing Price (EUR)" },
+              ticks: {
+                callback: v => "€ " + Number(v).toFixed(2)
+              },
+              // horizontal lines only
+              grid: {
+                drawBorder: true,
+                drawOnChartArea: true,
+                drawTicks: true,
+                color: "#e0e0e0",
+                borderDash: [],
+                display: true
+              }
             },
             y1: {
               beginAtZero: true,
@@ -289,16 +330,20 @@
               title: { display: true, text: "Spread Capture %" }
             },
             x: {
+              grid: {
+                // remove vertical grid lines
+                display: false,
+                drawBorder: true
+              },
               ticks: {
-                callback: function(value, index) {
-                  const label = this.getLabelForValue(index);
-                  return label.split("\n");
-                }
+                autoSkip: true,
+                maxRotation: 0,
+                minRotation: 0
               }
             }
           }
         },
-        plugins: [] // if you load chartjs-plugin-datalabels, register it here
+        plugins: [window.ChartDataLabels]
       });
     }
   }
