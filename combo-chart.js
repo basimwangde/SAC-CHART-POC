@@ -135,7 +135,7 @@
           };
 
           this._LabelData = { UniqueDate: [] };
-          this._ProductListData = { Product: [], ProductCategory: [],BarColour: [], LineColour: [] };
+          this._ProductListData = { Product: [], ProductCategory: [], BarColour: [], LineColour: [] };
 
           this._updateSourceFromBinding(this.main);
           this._render();
