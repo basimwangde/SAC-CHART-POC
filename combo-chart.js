@@ -196,11 +196,14 @@
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
+          skipNull: true,
           display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
           data: barData,
           backgroundColor: labelBgColor,
           borderColor: barBgColor,
           borderWidth: 1,
+          categoryPercentage: 0.8,
+          barPercentage: 0.9,
           order: 1,
           z: 0,
           datalabels: {
@@ -248,11 +251,37 @@
           order: 0,
           z: 10,
           datalabels: {
-            align: "top",
-            anchor: "end",
-            offset: 4,
+            display: true,
+
+            // ⬆ Day Ahead (line) | ⬇ Others (dot)
+            align: (ctx) => {
+              const label = ctx.dataset.label || "";
+              return label.includes("Day Ahead") ? "top" : "bottom";
+            },
+
+            anchor: (ctx) => {
+              const label = ctx.dataset.label || "";
+              return label.includes("Day Ahead") ? "end" : "start";
+            },
+
+             offset: (ctx) => {
+              const label = ctx.dataset.label || "";
+              return label.includes("Day Ahead") ? 6 : 10;
+            },
+
             color: "#ffffff",
-            backgroundColor: labelBgColor_1,
+
+            backgroundColor: (ctx) => {
+              const label = ctx.dataset.label || "";
+              return label.includes("Day Ahead") ? "#7F7F7F" : "#000000";
+            },
+
+            borderRadius: 2,
+            // align: "top",
+            // anchor: "end",
+            // offset: 4,
+            // color: "#ffffff",
+            // backgroundColor: labelBgColor_1,
             borderRadius: 2,
             padding: {
               top: 4,
