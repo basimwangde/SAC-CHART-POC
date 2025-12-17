@@ -196,6 +196,7 @@
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
+          display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
           data: barData,
           backgroundColor: labelBgColor,
           borderColor: barBgColor,
@@ -219,7 +220,12 @@
               weight: "bold",
               size: 11
             },
-            formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
+            // formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
+            formatter: (v) => {
+              if (v == null || isNaN(v)) return null; // prevents label box from rendering
+              return "€ " + v.toFixed(2);
+            }
+
           }
         });
 
@@ -228,6 +234,7 @@
           type: "line",
           label: prodName + " Spread Capture %",
           data: lineData,
+          display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
           yAxisID: "y1",
           borderColor: labelBgColor_1,
           backgroundColor: "lineBorderColor",
@@ -294,7 +301,11 @@
               text: "SPREAD CAPTURE VS CLEARING PRICE",
               font: { size: 16, weight: "bold" },
               align: "center",
-              color: "#000000"
+              color: "#000000",
+              padding: {
+                top: 10,
+                bottom: 20
+              }
             },
             legend: {
               position: "bottom",
@@ -332,7 +343,7 @@
               }
             },
             datalabels: {
-              display: true
+              display: true,
             }
           },
           scales: {
@@ -388,7 +399,10 @@
                 autoSkip: true,
                 maxRotation: 0,
                 minRotation: 0,
-                display: true
+                display: true,
+                backdropColor: 'transparent', // Removes background box behind tick labels
+                color: '#000000', // Ensures tick text is visible
+                padding: 5 // Adds spacing to avoid overlap
               }
             }
           }
