@@ -200,26 +200,12 @@
           borderWidth: 1,
           order: 1,
           z: 0,
-        //   datalabels: {
-        //     // like second chart: inside bar, white, bold
-        //     align: "end",
-        //     anchor: "end",
-        //     color: "#ffffff",
-        //     font: {
-        //       weight: "bold",
-        //       size: 11
-        //     },
-        //     offset: -4,
-        //     formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
-        //   }
-        // });
-
             datalabels: {
             // inside bar, euro sign first
             align: "end",
             anchor: "end",
             // long-term labels in pink, others white
-            color: isLongTerm ? "#E36C6C" : "#ffffff",
+            color: isLongTerm ? "#E36C6C" : "#000000",
             font: {
               weight: "bold",
               size: 11
