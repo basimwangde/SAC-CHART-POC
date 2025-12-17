@@ -40,8 +40,6 @@
     }
 
     _updateSourceFromBinding(binding) {
-
-       // always initialize to a default object
       this._SourceData = this._SourceData || {
         Products: [],
         Date: [],
@@ -110,7 +108,7 @@
           barColor.push("#A1C7A8");   // Day Ahead bar (green)
           lineColor.push("#7F7F7F");  // Day Ahead line (gray)
         } else if (p === LONG_TERM_NAME) {
-          barColor.push("#F9CCCC");   // Long Term bar (light spink)
+          barColor.push("#F9CCCC");   // Long Term bar (light pink)
           lineColor.push("#000000");  // Long Term line (black)
         } else {
           barColor.push("#A1C7A8");
@@ -187,68 +185,41 @@
           lineData[pos] = src.SpreadCapture[i];
         }
 
-        // detect long term once for all datasets
         const isLongTerm = prodName === "Long Term";
 
-        // bar dataset
+        // BAR DATASET
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
           data: barData,
-          backgroundColor: plist.BarColour[idx],
-          borderColor: plist.BarColour[idx],
+          backgroundColor: isLongTerm ? "#F9CCCC" : "#A1C7A8", // force pink for Long Term
+          borderColor:     isLongTerm ? "#F9CCCC" : "#A1C7A8",
           borderWidth: 1,
           order: 1,
           z: 0,
-          //   datalabels: {
-          //   // inside bar, euro sign first
-          //   align: "end",
-          //   anchor: "end",
-          //   // long-term labels in pink, others white
-          //   color: isLongTerm ? "#E36C6C" : "#A1C7A8",
-          //   font: {
-          //     weight: "bold",
-          //     size: 11
-          //   },
-          //   offset: -4,
-          //   formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
-          // }
-              datalabels: {
-              align: "end",
-              anchor: "end",
-              offset: -8,
+          datalabels: {
+            align: "end",
+            anchor: "end",
+            offset: -14,                    // more space above bar
 
-              // White text
-              color: "#ffffff",
-
-              // Green rectangular background
-              // backgroundColor: "#93C47D",
-
-              // label background: green for normal, pink for Long Term
-              backgroundColor: isLongTerm ? "#F9CCCC" : "#93C47D",
-
-
-              // IMPORTANT: rectangle, not rounded
-              borderRadius: 0,
-
-              padding: {
-                top: 4,
-                bottom: 4,
-                left: 6,
-                right: 6
-              },
-
-              font: {
-                weight: "bold",
-                size: 11
-              },
-
-              formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
-            }
-
+            color: "#ffffff",
+            backgroundColor: isLongTerm ? "#F9CCCC" : "#93C47D", // pink vs green
+            borderRadius: 0,
+            padding: {
+              top: 4,
+              bottom: 4,
+              left: 6,
+              right: 6
+            },
+            font: {
+              weight: "bold",
+              size: 11
+            },
+            formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
+          }
         });
 
-        // line dataset
+        // LINE DATASET
         datasets.push({
           type: "line",
           label: prodName + " Spread Capture %",
@@ -264,47 +235,25 @@
           borderWidth: 2,
           order: 0,
           z: 10,
-          // previous code
-          // datalabels: {
-          //   align: "top",
-          //   anchor: "end",
-          //   color: "#000000",
-          //   font: {
-          //     weight: "bold",
-          //     size: 11
-          //   },
-          //   formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
-          // }
-
-            datalabels: {
+          datalabels: {
             align: "top",
             anchor: "end",
-            offset: 6,
-
-            // WHITE text
+            offset: 10,
             color: "#ffffff",
-
-            // GREY rectangular box
             backgroundColor: "#7F7F7F",
-
-            // Rectangle (NOT rounded)
             borderRadius: 0,
-
             padding: {
               top: 4,
               bottom: 4,
               left: 6,
               right: 6
             },
-
             font: {
               weight: "bold",
               size: 11
             },
-
             formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
           }
-
         });
       });
 
@@ -329,9 +278,7 @@
           responsive: true,
           maintainAspectRatio: false,
           interaction: { mode: "index", intersect: false },
-
           animation: false,
-
           plugins: {
             title: {
               display: true,
@@ -340,23 +287,17 @@
               align: "center",
               color: "#000000"
             },
-
             legend: {
               position: "bottom",
-              align: "center",
+              align: "center",          // center in bottom area
               labels: {
-                usePointStyle: true,          // legend looks like line/marker instead of big box
-                // pointStyle: "line",           // for line datasets (will be overridden by dataset pointStyle)
-                // boxWidth: 30,
-                // boxHeight: 8
+                usePointStyle: true,
                 padding: 18,
                 boxWidth: 30,
                 font: { size: 11 },
-
                 generateLabels: (chart) => {
                   const base =
                     Chart.defaults.plugins.legend.labels.generateLabels(chart);
-
                   return base.map(l => {
                     const ds = chart.data.datasets[l.datasetIndex];
                     return {
@@ -365,10 +306,8 @@
                     };
                   });
                 }
-
               }
             },
-
             tooltip: {
               mode: "index",
               intersect: false,
@@ -383,27 +322,27 @@
                 }
               }
             },
-
             datalabels: {
               display: true
             }
           },
-
           scales: {
             y: {
               beginAtZero: true,
               title: { display: true, text: "Clearing Price (EUR)" },
               ticks: {
-                // remove decimals on Y axis
                 callback: v => "€ " + Number(v).toFixed(0)
               },
               grid: {
-                drawBorder: true,
+                drawBorder: false,
                 drawOnChartArea: true,
                 drawTicks: true,
                 color: "#e0e0e0",
                 borderDash: [],
                 display: true
+              },
+              border: {
+                display: false
               }
             },
             y1: {
@@ -413,33 +352,26 @@
               ticks: {
                 callback: v => v.toFixed(0) + "%"
               },
-              title: { display: true, text: "Spread Capture %" }
-            },
-            // x: {
-            //   grid: {
-            //     display: false,
-            //     drawBorder: true
-            //   },
-            //   ticks: {
-            //     autoSkip: true,
-            //     maxRotation: 0,
-            //     minRotation: 0
-            //   }
-            // }
-              x: {
-                grid: {
-                  display: false
-                },
-                border: {
-                  display: false   // THIS removes the x-axis box line
-                },
-                ticks: {
-                  autoSkip: true,
-                  maxRotation: 0,
-                  minRotation: 0
-                }
+              title: { display: true, text: "Spread Capture %" },
+              border: {
+                display: false
               }
-
+            },
+            x: {
+              grid: {
+                display: false,
+                drawOnChartArea: false,
+                drawTicks: true
+              },
+              border: {
+                display: false   // remove x‑axis box/border
+              },
+              ticks: {
+                autoSkip: true,
+                maxRotation: 0,
+                minRotation: 0
+              }
+            }
           }
         },
         plugins: [window.ChartDataLabels]
