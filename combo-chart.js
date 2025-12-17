@@ -95,7 +95,6 @@
       this._ProductListData = this._buildProductList(uniqueProducts);
     }
 
-    // fixed color mapping according to business meaning 
     _buildProductList(uniqueProducts) {
       const DAY_AHEAD_NAME = "Day Ahead";
       const LONG_TERM_NAME = "Long Term";
@@ -105,13 +104,13 @@
 
       uniqueProducts.forEach(p => {
         if (p === DAY_AHEAD_NAME) {
-          barColor.push("#A1C7A8");   // Day Ahead bar (green)
+          barColor.push("#93C47D");   // Day Ahead bar (green)
           lineColor.push("#7F7F7F");  // Day Ahead line (gray)
         } else if (p === LONG_TERM_NAME) {
           barColor.push("#F9CCCC");   // Long Term bar (light pink)
           lineColor.push("#000000");  // Long Term line (black)
         } else {
-          barColor.push("#A1C7A8");
+          barColor.push("#93C47D");
           lineColor.push("#7F7F7F");
         }
       });
@@ -186,24 +185,29 @@
         }
 
         const isLongTerm = prodName === "Long Term";
+        
+        // Use colors from the ProductListData which has correct mapping
+        const barBgColor = plist.BarColour[idx];
+        const labelBgColor = isLongTerm ? "#93C47D" : "#F9CCCC";
+        const lineBorderColor = plist.LineColour[idx];
+        const labelBgColor_1 = isLongTerm ? "#7F7F7F" : "#000000"
 
         // BAR DATASET
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
           data: barData,
-          backgroundColor: isLongTerm ? "#E6B8B8" : "#93C47D", // pink for Long Term, green for Day Ahead
-          borderColor:     isLongTerm ? "#E6B8B8" : "#93C47D",
+          backgroundColor: barBgColor,
+          borderColor: barBgColor,
           borderWidth: 1,
           order: 1,
           z: 0,
           datalabels: {
-            align: "end",
+            align: "top",
             anchor: "end",
-            offset: 8,                    // space between bar and label
-
+            offset: 4,
             color: "#ffffff",
-            backgroundColor: isLongTerm ? "#E6B8B8" : "#93C47D", // pink vs green
+            backgroundColor: labelBgColor,
             borderRadius: 2,
             padding: {
               top: 4,
@@ -225,8 +229,8 @@
           label: prodName + " Spread Capture %",
           data: lineData,
           yAxisID: "y1",
-          borderColor: plist.LineColour[idx],
-          backgroundColor: "#ffffff",
+          borderColor: lineBorderColor,
+          backgroundColor: "lineBorderColor",
           tension: 0,
           stepped: false,
           pointRadius: 4,
@@ -238,9 +242,9 @@
           datalabels: {
             align: "top",
             anchor: "end",
-            offset: 10,
+            offset: 4,
             color: "#ffffff",
-            backgroundColor: isLongTerm ? "#000000" : "#7F7F7F", // black for Long Term, gray for Day Ahead
+            backgroundColor: labelBgColor_1,
             borderRadius: 2,
             padding: {
               top: 4,
@@ -279,6 +283,11 @@
           maintainAspectRatio: false,
           interaction: { mode: "index", intersect: false },
           animation: false,
+          layout: {
+            padding: {
+              top: 40
+            }
+          },
           plugins: {
             title: {
               display: true,
@@ -289,7 +298,7 @@
             },
             legend: {
               position: "bottom",
-              align: "center",          // center in bottom area
+              align: "center",
               labels: {
                 usePointStyle: true,
                 padding: 18,
@@ -336,40 +345,50 @@
               grid: {
                 drawBorder: false,
                 drawOnChartArea: true,
-                drawTicks: true,
+                drawTicks: false,
                 color: "#e0e0e0",
                 borderDash: [],
                 display: true
               },
               border: {
-                display: false
+                display: false,
+                width: 0
               }
             },
             y1: {
               beginAtZero: true,
               position: "right",
-              grid: { drawOnChartArea: false },
+              grid: { 
+                drawOnChartArea: false,
+                drawBorder: false,
+                drawTicks: false
+              },
               ticks: {
                 callback: v => v.toFixed(0) + "%"
               },
               title: { display: true, text: "Spread Capture %" },
               border: {
-                display: false
+                display: false,
+                width: 0
               }
             },
             x: {
               grid: {
                 display: false,
+                drawBorder: false,
                 drawOnChartArea: false,
-                drawTicks: false      // remove ticks from x-axis
+                drawTicks: false,
+                lineWidth: 0
               },
               border: {
-                display: false        // remove x-axis box/border
+                display: false,
+                width: 0
               },
               ticks: {
                 autoSkip: true,
                 maxRotation: 0,
-                minRotation: 0
+                minRotation: 0,
+                display: true
               }
             }
           }
