@@ -188,8 +188,9 @@
         
         // Use colors from the ProductListData which has correct mapping
         const barBgColor = plist.BarColour[idx];
+        const labelBgColor = isLongTerm ? "#93C47D" : "#F9CCCC";
         const lineBorderColor = plist.LineColour[idx];
-        const labelBgColor = isLongTerm ? "#000000" : "#7F7F7F";
+        const labelBgColor_1 = isLongTerm ? "#7F7F7F" : "#000000"
 
         // BAR DATASET
         datasets.push({
@@ -206,7 +207,7 @@
             anchor: "end",
             offset: 4,
             color: "#ffffff",
-            backgroundColor: barBgColor,
+            backgroundColor: labelBgColor,
             borderRadius: 2,
             padding: {
               top: 4,
@@ -229,7 +230,7 @@
           data: lineData,
           yAxisID: "y1",
           borderColor: lineBorderColor,
-          backgroundColor: "#ffffff",
+          backgroundColor: "lineBorderColor",
           tension: 0,
           stepped: false,
           pointRadius: 4,
@@ -243,7 +244,7 @@
             anchor: "end",
             offset: 4,
             color: "#ffffff",
-            backgroundColor: labelBgColor,
+            backgroundColor: labelBgColor_1,
             borderRadius: 2,
             padding: {
               top: 4,
