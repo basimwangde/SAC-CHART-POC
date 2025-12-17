@@ -251,37 +251,11 @@
           order: 0,
           z: 10,
           datalabels: {
-            display: true,
-
-            // ⬆ Day Ahead (line) | ⬇ Others (dot)
-            align: (ctx) => {
-              const label = ctx.dataset.label || "";
-              return label.includes("Day Ahead") ? "top" : "bottom";
-            },
-
-            anchor: (ctx) => {
-              const label = ctx.dataset.label || "";
-              return label.includes("Day Ahead") ? "end" : "start";
-            },
-
-             offset: (ctx) => {
-              const label = ctx.dataset.label || "";
-              return label.includes("Day Ahead") ? 6 : 10;
-            },
-
+            align: "top",
+            anchor: "end",
+            offset: 4,
             color: "#ffffff",
-
-            backgroundColor: (ctx) => {
-              const label = ctx.dataset.label || "";
-              return label.includes("Day Ahead") ? "#7F7F7F" : "#000000";
-            },
-
-            borderRadius: 2,
-            // align: "top",
-            // anchor: "end",
-            // offset: 4,
-            // color: "#ffffff",
-            // backgroundColor: labelBgColor_1,
+            backgroundColor: labelBgColor_1,
             borderRadius: 2,
             padding: {
               top: 4,
