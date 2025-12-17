@@ -260,16 +260,46 @@
           borderWidth: 2,
           order: 0,
           z: 10,
-          datalabels: {
+          // datalabels: {
+          //   align: "top",
+          //   anchor: "end",
+          //   color: "#000000",
+          //   font: {
+          //     weight: "bold",
+          //     size: 11
+          //   },
+          //   formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
+          // }
+
+            datalabels: {
             align: "top",
             anchor: "end",
-            color: "#000000",
+            offset: 6,
+
+            // WHITE text
+            color: "#ffffff",
+
+            // GREY rectangular box
+            backgroundColor: "#7F7F7F",
+
+            // Rectangle (NOT rounded)
+            borderRadius: 0,
+
+            padding: {
+              top: 4,
+              bottom: 4,
+              left: 6,
+              right: 6
+            },
+
             font: {
               weight: "bold",
               size: 11
             },
+
             formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
           }
+
         });
       });
 
