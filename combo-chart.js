@@ -260,6 +260,7 @@
           borderWidth: 2,
           order: 0,
           z: 10,
+          // previous code
           // datalabels: {
           //   align: "top",
           //   anchor: "end",
