@@ -135,7 +135,7 @@
           };
 
           this._LabelData = { UniqueDate: [] };
-          this._ProductListData = { Product: [], ProductCategory: [], BarColour: [], LineColour: [] };
+          this._ProductListData = { Product: [], BarColour: [], LineColour: [] };
 
           this._updateSourceFromBinding(this.main);
           this._render();
@@ -169,7 +169,7 @@
 
       const datasets = [];
 
-      plist.ProductCategory.forEach((prodName, idx) => {
+      plist.Product.forEach((prodName, idx) => {
         const barData = new Array(dates.length).fill(null);
         const lineData = new Array(dates.length).fill(null);
 
@@ -184,7 +184,7 @@
           lineData[pos] = src.SpreadCapture[i];
         }
 
-        const isLongTerm = ProductCategory === "Long Term";
+        const isLongTerm = prodName === "Long Term";
         
         // Use colors from the ProductListData which has correct mapping
         const barBgColor = plist.BarColour[idx];
