@@ -329,20 +329,42 @@
                 }
               }
             },
-            tooltip: {
-              mode: "index",
-              intersect: false,
-              callbacks: {
-                label: (ctx) => {
-                  const dsLabel = ctx.dataset.label || "";
-                  const v = ctx.parsed.y;
-                  if (dsLabel.includes("Spread Capture")) {
-                    return dsLabel + ": " + (v != null ? v.toFixed(0) + "%" : "");
+            // tooltip: {
+            //   mode: "index",
+            //   intersect: false,
+            //   callbacks: {
+            //     label: (ctx) => {
+            //       const dsLabel = ctx.dataset.label || "";
+            //       const v = ctx.parsed.y;
+            //       if (dsLabel.includes("Spread Capture")) {
+            //         return dsLabel + ": " + (v != null ? v.toFixed(0) + "%" : "");
+            //       }
+            //       return dsLabel + ": " + (v != null ? "€ " + v.toFixed(2) : "");
+            //     }
+            //   }
+            // },
+              tooltip: {
+                mode: "index",
+                intersect: false,
+                filter: (ctx) => {
+                  const v = ctx.parsed?.y;
+                  return v !== null && v !== undefined && !isNaN(v);
+                },
+                callbacks: {
+                  label: (ctx) => {
+                    const dsLabel = ctx.dataset.label || "";
+                    const v = ctx.parsed.y;
+
+                    if (v == null || isNaN(v)) return null;
+
+                    if (dsLabel.includes("Spread Capture")) {
+                      return dsLabel + ": " + v.toFixed(0) + "%";
+                    }
+                    return dsLabel + ": € " + v.toFixed(2);
                   }
-                  return dsLabel + ": " + (v != null ? "€ " + v.toFixed(2) : "");
                 }
-              }
-            },
+              },
+
             datalabels: {
               display: true,
             }
