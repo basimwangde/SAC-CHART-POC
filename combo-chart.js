@@ -200,19 +200,48 @@
           borderWidth: 1,
           order: 1,
           z: 0,
-            datalabels: {
-            // inside bar, euro sign first
-            align: "end",
-            anchor: "end",
-            // long-term labels in pink, others white
-            color: isLongTerm ? "#E36C6C" : "#000000",
-            font: {
-              weight: "bold",
-              size: 11
-            },
-            offset: -4,
-            formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
-          }
+          //   datalabels: {
+          //   // inside bar, euro sign first
+          //   align: "end",
+          //   anchor: "end",
+          //   // long-term labels in pink, others white
+          //   color: isLongTerm ? "#E36C6C" : "#A1C7A8",
+          //   font: {
+          //     weight: "bold",
+          //     size: 11
+          //   },
+          //   offset: -4,
+          //   formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
+          // }
+              datalabels: {
+              align: "end",
+              anchor: "end",
+              offset: -6,
+
+              // White text
+              color: "#ffffff",
+
+              // Green rectangular background
+              backgroundColor: "#93C47D",
+
+              // IMPORTANT: rectangle, not rounded
+              borderRadius: 0,
+
+              padding: {
+                top: 4,
+                bottom: 4,
+                left: 6,
+                right: 6
+              },
+
+              font: {
+                weight: "bold",
+                size: 11
+              },
+
+              formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
+            }
+
         });
 
         // line dataset
