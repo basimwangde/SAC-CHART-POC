@@ -248,9 +248,9 @@
           order: 0,
           z: 10,
           datalabels: {
-            align: "bottom",
-            anchor: "start",
-            offset: 6,
+            align: "top",
+            anchor: "end",
+            offset: 4,
             color: "#ffffff",
             backgroundColor: labelBgColor_1,
             borderRadius: 2,
