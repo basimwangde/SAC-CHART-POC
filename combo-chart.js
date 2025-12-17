@@ -184,7 +184,7 @@
           lineData[pos] = src.SpreadCapture[i];
         }
 
-        const isLongTerm = src.ProductCategory[i] === "Long Term";
+        const isLongTerm = prodName === "Long Term";
         
         // Use colors from the ProductListData which has correct mapping
         const barBgColor = plist.BarColour[idx];
