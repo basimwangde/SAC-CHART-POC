@@ -188,7 +188,7 @@
         
         // Use colors from the ProductListData which has correct mapping
         const barBgColor = plist.BarColour[idx];
-        const labelBgColor = isLongTerm ? "#F9CCCC" : "#93C47D";
+        const labelBgColor = isLongTerm ? "#93C47D" : "#F9CCCC";
         const lineBorderColor = plist.LineColour[idx];
         const labelBgColor_1 = isLongTerm ? "#7F7F7F" : "#000000"
 
@@ -197,7 +197,7 @@
           type: "bar",
           label: prodName + " Clearing Price",
           data: barData,
-          backgroundColor: barBgColor,
+          backgroundColor: labelBgColor,
           borderColor: barBgColor,
           borderWidth: 1,
           order: 1,
@@ -229,7 +229,7 @@
           label: prodName + " Spread Capture %",
           data: lineData,
           yAxisID: "y1",
-          borderColor: lineBorderColor,
+          borderColor: labelBgColor_1,
           backgroundColor: "lineBorderColor",
           tension: 0,
           stepped: false,
