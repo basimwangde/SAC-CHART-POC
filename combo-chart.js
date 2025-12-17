@@ -294,7 +294,11 @@
               text: "SPREAD CAPTURE VS CLEARING PRICE",
               font: { size: 16, weight: "bold" },
               align: "center",
-              color: "#000000"
+              color: "#000000",
+              padding: {
+                top: 10,
+                bottom: 20
+              }
             },
             legend: {
               position: "bottom",
@@ -332,7 +336,7 @@
               }
             },
             datalabels: {
-              display: true
+              display: true,
             }
           },
           scales: {
@@ -388,7 +392,10 @@
                 autoSkip: true,
                 maxRotation: 0,
                 minRotation: 0,
-                display: true
+                display: true,
+                backdropColor: 'transparent', // Removes background box behind tick labels
+                color: '#000000', // Ensures tick text is visible
+                padding: 5 // Adds spacing to avoid overlap
               }
             }
           }
