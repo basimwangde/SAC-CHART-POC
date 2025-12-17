@@ -192,19 +192,19 @@
           type: "bar",
           label: prodName + " Clearing Price",
           data: barData,
-          backgroundColor: isLongTerm ? "#F9CCCC" : "#A1C7A8", // force pink for Long Term
-          borderColor:     isLongTerm ? "#F9CCCC" : "#A1C7A8",
+          backgroundColor: isLongTerm ? "#E6B8B8" : "#93C47D", // pink for Long Term, green for Day Ahead
+          borderColor:     isLongTerm ? "#E6B8B8" : "#93C47D",
           borderWidth: 1,
           order: 1,
           z: 0,
           datalabels: {
             align: "end",
             anchor: "end",
-            offset: -14,                    // more space above bar
+            offset: 8,                    // space between bar and label
 
             color: "#ffffff",
-            backgroundColor: isLongTerm ? "#F9CCCC" : "#93C47D", // pink vs green
-            borderRadius: 0,
+            backgroundColor: isLongTerm ? "#E6B8B8" : "#93C47D", // pink vs green
+            borderRadius: 2,
             padding: {
               top: 4,
               bottom: 4,
@@ -240,8 +240,8 @@
             anchor: "end",
             offset: 10,
             color: "#ffffff",
-            backgroundColor: "#7F7F7F",
-            borderRadius: 0,
+            backgroundColor: isLongTerm ? "#000000" : "#7F7F7F", // black for Long Term, gray for Day Ahead
+            borderRadius: 2,
             padding: {
               top: 4,
               bottom: 4,
@@ -361,10 +361,10 @@
               grid: {
                 display: false,
                 drawOnChartArea: false,
-                drawTicks: true
+                drawTicks: false      // remove ticks from x-axis
               },
               border: {
-                display: false   // remove x‑axis box/border
+                display: false        // remove x-axis box/border
               },
               ticks: {
                 autoSkip: true,
