@@ -169,7 +169,7 @@
 
       const datasets = [];
 
-      src.ProductCategory.forEach((prodName, idx) => {
+      plist.Product.forEach((prodName, idx) => {
         const barData = new Array(dates.length).fill(null);
         const lineData = new Array(dates.length).fill(null);
 
@@ -184,7 +184,7 @@
           lineData[pos] = src.SpreadCapture[i];
         }
 
-        const isLongTerm = prodName === "Long Term";
+        const isLongTerm = src.ProductCategory[i] === "Long Term";
         
         // Use colors from the ProductListData which has correct mapping
         const barBgColor = plist.BarColour[idx];
@@ -192,7 +192,6 @@
         const lineBorderColor = plist.LineColour[idx];
         const labelBgColor_1 = isLongTerm ? "#7F7F7F" : "#000000"
 
-        
         // BAR DATASET
         datasets.push({
           type: "bar",
