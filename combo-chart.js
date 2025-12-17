@@ -216,13 +216,17 @@
               datalabels: {
               align: "end",
               anchor: "end",
-              offset: -6,
+              offset: -8,
 
               // White text
               color: "#ffffff",
 
               // Green rectangular background
-              backgroundColor: "#93C47D",
+              // backgroundColor: "#93C47D",
+
+              // label background: green for normal, pink for Long Term
+              backgroundColor: isLongTerm ? "#F9CCCC" : "#93C47D",
+
 
               // IMPORTANT: rectangle, not rounded
               borderRadius: 0,
@@ -260,6 +264,7 @@
           borderWidth: 2,
           order: 0,
           z: 10,
+          // previous code
           // datalabels: {
           //   align: "top",
           //   anchor: "end",
@@ -341,9 +346,26 @@
               align: "center",
               labels: {
                 usePointStyle: true,          // legend looks like line/marker instead of big box
-                pointStyle: "line",           // for line datasets (will be overridden by dataset pointStyle)
+                // pointStyle: "line",           // for line datasets (will be overridden by dataset pointStyle)
+                // boxWidth: 30,
+                // boxHeight: 8
+                padding: 18,
                 boxWidth: 30,
-                boxHeight: 8
+                font: { size: 11 },
+
+                generateLabels: (chart) => {
+                  const base =
+                    Chart.defaults.plugins.legend.labels.generateLabels(chart);
+
+                  return base.map(l => {
+                    const ds = chart.data.datasets[l.datasetIndex];
+                    return {
+                      ...l,
+                      pointStyle: ds.type === "line" ? "line" : "rect"
+                    };
+                  });
+                }
+
               }
             },
 
@@ -393,17 +415,31 @@
               },
               title: { display: true, text: "Spread Capture %" }
             },
-            x: {
-              grid: {
-                display: false,
-                drawBorder: true
-              },
-              ticks: {
-                autoSkip: true,
-                maxRotation: 0,
-                minRotation: 0
+            // x: {
+            //   grid: {
+            //     display: false,
+            //     drawBorder: true
+            //   },
+            //   ticks: {
+            //     autoSkip: true,
+            //     maxRotation: 0,
+            //     minRotation: 0
+            //   }
+            // }
+              x: {
+                grid: {
+                  display: false
+                },
+                border: {
+                  display: false   // THIS removes the x-axis box line
+                },
+                ticks: {
+                  autoSkip: true,
+                  maxRotation: 0,
+                  minRotation: 0
+                }
               }
-            }
+
           }
         },
         plugins: [window.ChartDataLabels]
