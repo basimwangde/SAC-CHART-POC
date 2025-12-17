@@ -40,6 +40,16 @@
     }
 
     _updateSourceFromBinding(binding) {
+
+       // always initialize to a default object
+      this._SourceData = this._SourceData || {
+        Products: [],
+        Date: [],
+        ProductCategory: [],
+        ClearingPrice: [],
+        SpreadCapture: []
+      };
+
       if (binding && Array.isArray(binding.data) && binding.data.length > 0) {
         const rows = binding.data;
 
@@ -72,8 +82,9 @@
           this._SourceData.SpreadCapture.push(spread);
         });
       }
-
-      this._buildMetaFromSource();
+      if (this._SourceData && Array.isArray(this._SourceData.Date)) {
+        this._buildMetaFromSource();
+      }
     }
 
     _buildMetaFromSource() {
@@ -176,6 +187,9 @@
           lineData[pos] = src.SpreadCapture[i];
         }
 
+        // detect long term once for all datasets
+        const isLongTerm = prodName === "Long Term";
+
         // bar dataset
         datasets.push({
           type: "bar",
@@ -186,11 +200,26 @@
           borderWidth: 1,
           order: 1,
           z: 0,
-          datalabels: {
-            // like second chart: inside bar, white, bold
+        //   datalabels: {
+        //     // like second chart: inside bar, white, bold
+        //     align: "end",
+        //     anchor: "end",
+        //     color: "#ffffff",
+        //     font: {
+        //       weight: "bold",
+        //       size: 11
+        //     },
+        //     offset: -4,
+        //     formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
+        //   }
+        // });
+
+            datalabels: {
+            // inside bar, euro sign first
             align: "end",
             anchor: "end",
-            color: "#ffffff",
+            // long-term labels in pink, others white
+            color: isLongTerm ? "#E36C6C" : "#ffffff",
             font: {
               weight: "bold",
               size: 11
