@@ -243,6 +243,7 @@
           pointRadius: 4,
           pointHoverRadius: 5,
           pointBorderWidth: 2,
+          pointBackgroundColor: "#7F7F7F", // grey points
           borderWidth: 2,
           order: 0,
           z: 10,
@@ -299,12 +300,12 @@
             title: {
               display: true,
               text: "SPREAD CAPTURE VS CLEARING PRICE",
-              font: { size: 16, weight: "bold" },
+              font: { size: 20, weight: "bold" },
               align: "center",
               color: "#000000",
               padding: {
                 top: 10,
-                bottom: 20
+                bottom: 30
               }
             },
             legend: {
@@ -328,20 +329,42 @@
                 }
               }
             },
-            tooltip: {
-              mode: "index",
-              intersect: false,
-              callbacks: {
-                label: (ctx) => {
-                  const dsLabel = ctx.dataset.label || "";
-                  const v = ctx.parsed.y;
-                  if (dsLabel.includes("Spread Capture")) {
-                    return dsLabel + ": " + (v != null ? v.toFixed(0) + "%" : "");
+            // tooltip: {
+            //   mode: "index",
+            //   intersect: false,
+            //   callbacks: {
+            //     label: (ctx) => {
+            //       const dsLabel = ctx.dataset.label || "";
+            //       const v = ctx.parsed.y;
+            //       if (dsLabel.includes("Spread Capture")) {
+            //         return dsLabel + ": " + (v != null ? v.toFixed(0) + "%" : "");
+            //       }
+            //       return dsLabel + ": " + (v != null ? "€ " + v.toFixed(2) : "");
+            //     }
+            //   }
+            // },
+              tooltip: {
+                mode: "index",
+                intersect: false,
+                filter: (ctx) => {
+                  const v = ctx.parsed?.y;
+                  return v !== null && v !== undefined && !isNaN(v);
+                },
+                callbacks: {
+                  label: (ctx) => {
+                    const dsLabel = ctx.dataset.label || "";
+                    const v = ctx.parsed.y;
+
+                    if (v == null || isNaN(v)) return null;
+
+                    if (dsLabel.includes("Spread Capture")) {
+                      return dsLabel + ": " + v.toFixed(0) + "%";
+                    }
+                    return dsLabel + ": € " + v.toFixed(2);
                   }
-                  return dsLabel + ": " + (v != null ? "€ " + v.toFixed(2) : "");
                 }
-              }
-            },
+              },
+
             datalabels: {
               display: true,
             }
