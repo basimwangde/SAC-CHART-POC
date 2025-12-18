@@ -196,14 +196,14 @@
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
-          skipNull: true,
+          // skipNull: true,
           display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
           data: barData,
           backgroundColor: labelBgColor,
           borderColor: barBgColor,
           borderWidth: 1,
-          categoryPercentage: 0.8,
-          barPercentage: 0.9,
+          // categoryPercentage: 0.8,
+          // barPercentage: 0.9,
           order: 1,
           z: 0,
           datalabels: {
