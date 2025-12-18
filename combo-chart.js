@@ -230,113 +230,49 @@
         });
 
         // LINE DATASET
-        // datasets.push({
-        //   type: "line",
-        //   label: prodName + " Spread Capture %",
-        //   data: lineData,
-        //   display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
-        //   yAxisID: "y1",
-        //   borderColor: labelBgColor_1,
-        //   backgroundColor: "lineBorderColor",
-        //   tension: 0,
-        //   stepped: false,
-        //   pointRadius: 4,
-        //   pointHoverRadius: 5,
-        //   pointBorderWidth: 2,
-        //   pointBackgroundColor: "#7F7F7F", // grey points
-        //   borderWidth: 2,
-        //   order: 0,
-        //   z: 10,
-        //   datalabels: {
-        //     align: "top",
-        //     anchor: "end",
-        //     offset: 4,
-        //     color: "#ffffff",
-        //     backgroundColor: labelBgColor_1,
-        //     borderRadius: 2,
-        //     padding: {
-        //       top: 4,
-        //       bottom: 4,
-        //       left: 6,
-        //       right: 6
-        //     },
-        //     font: {
-        //       weight: "bold",
-        //       size: 11
-        //     },
-        //     formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
-        //   }
-        // });
-
-        // LINE DATASET
-          datasets.push({
-            type: "line",
-            label: prodName + " Spread Capture %",
-            data: lineData,
-            display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
-            yAxisID: "y1",
-            borderColor: labelBgColor_1,
-            backgroundColor: "lineBorderColor",
-            tension: 0,
-            stepped: false,
-            pointRadius: 4,
-            pointHoverRadius: 5,
-            pointBorderWidth: 2,
-            pointBackgroundColor: "#7F7F7F",
-            borderWidth: 2,
-            order: 0,
-            z: 10,
-            datalabels: {
-              // dynamic placement relative to bar value
-              align: (ctx) => {
-                const index = ctx.dataIndex;
-                const barVal = barData[index];
-                const lineVal = lineData[index];
-
-                // if both bar and line exist at this index, put the line label below the point
-                if (barVal != null && lineVal != null) {
-                  return "bottom";    // below the point
-                }
-                // otherwise keep normal position
-                return "top";
-              },
-              anchor: (ctx) => {
-                const index = ctx.dataIndex;
-                const barVal = barData[index];
-                const lineVal = lineData[index];
-
-                if (barVal != null && lineVal != null) {
-                  return "start";     // anchor so it drops downward
-                }
-                return "end";
-              },
-              offset: (ctx) => {
-                const index = ctx.dataIndex;
-                const barVal = barData[index];
-                const lineVal = lineData[index];
-
-                if (barVal != null && lineVal != null) {
-                  return -6;          // negative moves it down from the point
-                }
-                return 4;             // default small offset upwards
-              },
-              color: "#ffffff",
-              backgroundColor: labelBgColor_1,
-              borderRadius: 2,
-              padding: {
-                top: 4,
-                bottom: 4,
-                left: 6,
-                right: 6
-              },
-              font: {
-                weight: "bold",
-                size: 11
-              },
-              formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
-            }
-          });
-
+        datasets.push({
+          type: "line",
+          label: prodName + " Spread Capture %",
+          data: lineData,
+          display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
+          yAxisID: "y1",
+          borderColor: labelBgColor_1,
+          backgroundColor: "lineBorderColor",
+          tension: 0,
+          stepped: false,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          pointBorderWidth: 2,
+          pointBackgroundColor: "#7F7F7F", // grey points
+          borderWidth: 2,
+          order: 0,
+          z: 10,
+          datalabels: {
+            align: "top",
+            anchor: "end",
+            // offset: 4,
+            offset: (ctx) => {
+              const i = ctx.dataIndex;
+              const hasBar = barData[i] != null;
+              // if there is a bar at this x, push the line label far above it
+              return hasBar ? -20 : 4;
+            },
+            color: "#ffffff",
+            backgroundColor: labelBgColor_1,
+            borderRadius: 2,
+            padding: {
+              top: 4,
+              bottom: 4,
+              left: 6,
+              right: 6
+            },
+            font: {
+              weight: "bold",
+              size: 11
+            },
+            formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
+          }
+        });
       });
 
       return datasets;
