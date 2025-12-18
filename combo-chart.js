@@ -193,17 +193,54 @@
         const labelBgColor_1 = isLongTerm ? "#7F7F7F" : "#000000"
 
         // BAR DATASET
+        // datasets.push({
+        //   type: "bar",
+        //   label: prodName + " Clearing Price",
+        //   // skipNull: true,
+        //   display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
+        //   data: barData,
+        //   backgroundColor: labelBgColor,
+        //   borderColor: barBgColor,
+        //   borderWidth: 1,
+        //   // categoryPercentage: 0.8,
+        //   // barPercentage: 0.9,
+        //   order: 1,
+        //   z: 0,
+        //   datalabels: {
+        //     align: "top",
+        //     anchor: "end",
+        //     offset: 4,
+        //     color: "#ffffff",
+        //     backgroundColor: labelBgColor,
+        //     borderRadius: 2,
+        //     padding: {
+        //       top: 4,
+        //       bottom: 4,
+        //       left: 6,
+        //       right: 6
+        //     },
+        //     font: {
+        //       weight: "bold",
+        //       size: 11
+        //     },
+        //     // formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
+        //     formatter: (v) => {
+        //       if (v == null || isNaN(v)) return null; // prevents label box from rendering
+        //       return "€ " + v.toFixed(2);
+        //     }
+
+        //   }
+        // });
+
+        // BAR DATASET
         datasets.push({
           type: "bar",
           label: prodName + " Clearing Price",
-          // skipNull: true,
           display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
           data: barData,
           backgroundColor: labelBgColor,
           borderColor: barBgColor,
           borderWidth: 1,
-          // categoryPercentage: 0.8,
-          // barPercentage: 0.9,
           order: 1,
           z: 0,
           datalabels: {
@@ -219,57 +256,119 @@
               left: 6,
               right: 6
             },
-            font: {
-              weight: "bold",
-              size: 11
+            // dynamic font based on closeness to previous value
+            font: (ctx) => {
+              const data = ctx.dataset.data || [];
+              const index = ctx.dataIndex;
+              const value = data[index];
+              const prev  = index > 0 ? data[index - 1] : null;
+
+              // tune this threshold to your data range
+              const isClose = prev != null && value != null &&
+                              Math.abs(value - prev) < 5;
+
+              return {
+                weight: "bold",
+                size: isClose ? 9 : 11
+              };
             },
-            // formatter: (v) => v == null ? "" : "€ " + v.toFixed(2)
             formatter: (v) => {
-              if (v == null || isNaN(v)) return null; // prevents label box from rendering
+              if (v == null || isNaN(v)) return null;
               return "€ " + v.toFixed(2);
             }
-
           }
         });
+
 
         // LINE DATASET
-        datasets.push({
-          type: "line",
-          label: prodName + " Spread Capture %",
-          data: lineData,
-          display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
-          yAxisID: "y1",
-          borderColor: labelBgColor_1,
-          backgroundColor: "lineBorderColor",
-          tension: 0,
-          stepped: false,
-          pointRadius: 4,
-          pointHoverRadius: 5,
-          pointBorderWidth: 2,
-          pointBackgroundColor: "#7F7F7F", // grey points
-          borderWidth: 2,
-          order: 0,
-          z: 10,
-          datalabels: {
-            align: "top",
-            anchor: "end",
-            offset: 4,
-            color: "#ffffff",
-            backgroundColor: labelBgColor_1,
-            borderRadius: 2,
-            padding: {
-              top: 4,
-              bottom: 4,
-              left: 6,
-              right: 6
-            },
-            font: {
-              weight: "bold",
-              size: 11
-            },
-            formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
-          }
-        });
+        // datasets.push({
+        //   type: "line",
+        //   label: prodName + " Spread Capture %",
+        //   data: lineData,
+        //   display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
+        //   yAxisID: "y1",
+        //   borderColor: labelBgColor_1,
+        //   backgroundColor: "lineBorderColor",
+        //   tension: 0,
+        //   stepped: false,
+        //   pointRadius: 4,
+        //   pointHoverRadius: 5,
+        //   pointBorderWidth: 2,
+        //   pointBackgroundColor: "#7F7F7F", // grey points
+        //   borderWidth: 2,
+        //   order: 0,
+        //   z: 10,
+        //   datalabels: {
+        //     align: "top",
+        //     anchor: "end",
+        //     offset: 4,
+        //     color: "#ffffff",
+        //     backgroundColor: labelBgColor_1,
+        //     borderRadius: 2,
+        //     padding: {
+        //       top: 4,
+        //       bottom: 4,
+        //       left: 6,
+        //       right: 6
+        //     },
+        //     font: {
+        //       weight: "bold",
+        //       size: 11
+        //     },
+        //     formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
+        //   }
+        // });
+
+        // LINE DATASET
+          datasets.push({
+            type: "line",
+            label: prodName + " Spread Capture %",
+            data: lineData,
+            display: (ctx) => ctx.dataset.data[ctx.dataIndex] != null,
+            yAxisID: "y1",
+            borderColor: labelBgColor_1,
+            backgroundColor: "lineBorderColor",
+            tension: 0,
+            stepped: false,
+            pointRadius: 4,
+            pointHoverRadius: 5,
+            pointBorderWidth: 2,
+            pointBackgroundColor: "#7F7F7F",
+            borderWidth: 2,
+            order: 0,
+            z: 10,
+            datalabels: {
+              align: "top",
+              anchor: "end",
+              offset: 4,
+              color: "#ffffff",
+              backgroundColor: labelBgColor_1,
+              borderRadius: 2,
+              padding: {
+                top: 4,
+                bottom: 4,
+                left: 6,
+                right: 6
+              },
+              font: (ctx) => {
+                const data = ctx.dataset.data || [];
+                const index = ctx.dataIndex;
+                const value = data[index];
+                const prev  = index > 0 ? data[index - 1] : null;
+
+                // for percentages, maybe a smaller threshold
+                const isClose = prev != null && value != null &&
+                                Math.abs(value - prev) < 8;
+
+                return {
+                  weight: "bold",
+                  size: isClose ? 9 : 11
+                };
+              },
+              formatter: (v) => v == null ? "" : v.toFixed(0) + "%"
+            }
+          });
+
       });
 
       return datasets;
